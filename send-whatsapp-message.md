@@ -25,8 +25,28 @@ Please make sure to read the comments in the
 code below as they would help you understand and modify the code 
 according to how your table and fields are structured.
 
+## Edit 1: Working with mobile and desktop device
+## Edit 2: Moving phoneNum and message vars to click function sendWhatsApp because of loading issues
+
 ```js
 $j(function() {
+  
+    // prepare 'WhatsApp' button
+    $j('<button class="btn btn-success" type="button">Whatsapp</button>')
+  
+    // send WhatsApp message on clicking the button
+    .on('click', function() {
+        sendWhatsApp();
+    })
+  
+    // add the button to the form -- above the 'Back' button
+    .insertBefore('#deselect');
+})
+
+// function to open WhatsApp web, ready to send the specified
+// message to the specified phone number
+// You probably don't need to edit anything below!
+var sendWhatsApp = function() {
     // get the phone number from the current record
     // assuming the phone field is named 'phone'
     // phone number MUST include country code
@@ -54,36 +74,24 @@ $j(function() {
         // assuming 'customer' is a lookup drop-down
         $j('#customer-container').select2('data').text
     ].join('\n');
-  
-    // prepare 'WhatsApp' button
-    $j('<button class="btn btn-success" type="button">Whatsapp</button>')
-  
-    // send WhatsApp message on clicking the button
-    .on('click', function() {
-        sendWhatsApp(phoneNum, message);
-    })
-  
-    // add the button to the form -- above the 'Back' button
-    .insertBefore('#deselect');
-})
+	
+	//detect mobile devices and desktops
+	if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+		// prepare the WhatsApp- mobile link
+		var link = "https://wa.me/" + encodeURIComponent(phoneNum) + "?text=" + encodeURIComponent(message);
+	}else{
+		// prepare the WhatsApp-web link
+		var link = 'https://web.whatsapp.com/send?app_absent=0' +
+				   '&phone=' + encodeURIComponent(phoneNum) + 
+				   '&text='  + encodeURIComponent(message);
+	}
 
-// function to open WhatsApp web, ready to send the specified
-// message to the specified phone number
-// You probably don't need to edit anything below!
-var sendWhatsApp = function(phoneNum, message) {
-    // format phone number for WhatsApp (numbers only)
-    phoneNum = phoneNum.replace(/\D/g, '').trim();
-  
-    // prepare the WhatsApp-web link
-    var link = 'https://web.whatsapp.com/send?app_absent=0' +
-               '&phone=' + encodeURIComponent(phoneNum) + 
-               '&text='  + encodeURIComponent(message);
-  
-    // open link in a new tab rather than our AppGini app page.
+    // open link in a new tab rather than our AppGini app page or directly in WhatsApp App if the device is mobile
     window.open(link);
   
     // returning false prevents submitting the form by mistake
     // on clicking the button
     return false;
 }
+
 ```
